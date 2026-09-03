@@ -174,6 +174,14 @@ function isVisibleToken(chunk: DshStreamChunk): boolean {
     || (typeof value.argumentsDelta === 'string' && value.argumentsDelta !== '')
 }
 
+function preserveReactStepName(invocation: ReactStepInvocation, step: number): void {
+  const span = invocation.span
+  if (span === undefined || span === null) return
+
+  const updateName = span.updateName.bind(span)
+  span.updateName = (name: string) => updateName(name === 'react step' ? `react step ${step}` : name)
+}
+
 function scalarAttributes(session: DshSession, turn: number): Record<string, unknown> {
   const header = session.header
   return {
@@ -380,6 +388,9 @@ export class DshTraceCoordinator {
       },
     })
     this.handler.startReactStep(invocation, active.agent.contextToken ?? ROOT_CONTEXT, startTime)
+    // otel-util-genai currently resets every ReAct span name to "react step"
+    // during finish; preserve the DSH step number for the Langfuse tree view.
+    preserveReactStepName(invocation, step)
     active.step = {
       turn,
       step,

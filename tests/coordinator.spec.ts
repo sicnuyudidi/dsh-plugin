@@ -91,6 +91,7 @@ describe('DshTraceCoordinator', () => {
     expect(step.parentSpanContext?.spanId).toBe(agent.spanContext().spanId)
     expect(llm.parentSpanContext?.spanId).toBe(step.spanContext().spanId)
     expect(tool.parentSpanContext?.spanId).toBe(step.spanContext().spanId)
+    expect(step.name).toBe('react step 1')
     expect(new Set(finished.map(span => span.spanContext().traceId))).toHaveLength(1)
     expect(llm.status.code).toBe(SpanStatusCode.OK)
     // The fixture bills 8 uncached input tokens plus 2 served from cache, and
