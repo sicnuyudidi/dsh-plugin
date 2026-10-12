@@ -268,6 +268,12 @@ export class DshTraceCoordinator {
         case 'user/message':
           this.captureTurnInput(state, eventData<DshMessage>(event))
           break
+        case 'developer/message':
+        case 'system/message': {
+          const data = eventData<{ message: DshMessage }>(event)
+          this.captureTurnContext(state, data.message)
+          break
+        }
         case 'assistant/message': {
           const data = eventData<{ turn: number; step: number; message: DshMessage }>(event)
           this.captureTurnOutput(state, data.turn, data.step, data.message)
@@ -289,7 +295,7 @@ export class DshTraceCoordinator {
             turn: number
             step: number
             message: DshMessage
-            error?: { name: string; code: string }
+            error?: { name: string; code: string; reason?: string }
           }>(event)
           this.endTool(state, data, event.time)
           break
@@ -616,7 +622,7 @@ export class DshTraceCoordinator {
       turn: number
       step: number
       message: DshMessage
-      error?: { name: string; code: string }
+      error?: { name: string; code: string; reason?: string }
     },
     endTime: number,
   ): void {
@@ -651,7 +657,7 @@ export class DshTraceCoordinator {
     if (isError) {
       const error = data.error
       this.handler.failExecuteTool(tool.invocation, {
-        message: error?.name ?? 'Tool execution failed',
+        message: error?.reason ?? error?.name ?? 'Tool execution failed',
         type: error?.code ?? 'TOOL_ERROR',
       }, endTime)
       return
@@ -670,11 +676,17 @@ export class DshTraceCoordinator {
     if (state.turn === undefined) return
     // Every user/message emitted after turn/start belongs to this trace's
     // model-visible context, including runtime and skill injections.
-    if (this.config.captureContent) state.turn.contextMessages.push(message)
+    this.captureTurnContext(state, message)
     // DSH also uses user/message for synthetic model-visible context. ENTRY
     // and AGENT describe only the direct human turn request.
     if (message.source.kind !== 'user') return
     state.turn.inputs.push(mapInputMessage(message))
+  }
+
+  private captureTurnContext(state: SessionState, message: DshMessage): void {
+    if (this.config.captureContent && state.turn !== undefined) {
+      state.turn.contextMessages.push(message)
+    }
   }
 
   private captureTurnOutput(

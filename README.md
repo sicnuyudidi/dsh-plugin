@@ -11,8 +11,8 @@ LoongSuite is an open-source observability collection ecosystem built on OpenTel
 repository is its native DSH integration. The plugin does **not** depend on or require LoongSuite
 Pilot, a sidecar, a local JSONL tap, or any particular vendor's backend.
 
-> Status: stable `0.1.x` release. Install `@loongsuite/dsh-plugin` from npm or the DSH plugin
-> market.
+> Fork build status: `0.1.4-dsh.0.2.0`, targeting the Session V4 API in DSH `0.2.0-rc.2`.
+> The upstream `0.1.x` package on npm and the DSH plugin market still targets DSH `0.1.x`.
 
 <p align="center">
   <img src="docs/assets/langfuse-trace.png" alt="One DeepSeek Harness turn as an OpenTelemetry GenAI trace, viewed in self-hosted Langfuse" width="900">
@@ -73,14 +73,14 @@ GenAI invocation construction and semantic attributes are powered by the
 
 ## Compatibility
 
-| Component | Supported range | Fully verified version(s) |
+| Component | Supported range | Validation baseline |
 | --- | --- | --- |
-| DeepSeek Harness | `>=0.1.0-rc.6 <0.2.0` | `0.1.0-rc.6` headless and Web profiles |
-| Node.js | `>=22.19.0` | `22.19`, `24.19`, and `25.9` on macOS |
+| DeepSeek Harness | `>=0.2.0-rc.2 <0.2.1` | `0.2.0-rc.2` isolated profile, type contracts, and event mapping tests |
+| Node.js | `>=22.19.0` | Node.js runtime bundled with DSH Desktop on Windows |
 
-DSH release candidates older than `0.1.0-rc.6` are not supported. Each plugin release is tested
-against the latest published DSH version rather than treating successful bundle composition alone
-as full runtime compatibility.
+This fork branch targets DSH `0.2.x` and supports Session V4 `system/message`, `developer/message`,
+the first-class `tool` role, authoritative `totalTokens`, and tool error `reason`. Use the upstream
+release when running DSH `0.1.x`.
 
 ## Install and run
 
@@ -93,6 +93,23 @@ Add the plugin to every DSH profile you want to observe:
 dsh plugin --profile web add @loongsuite/dsh-plugin
 dsh plugin --profile headless add @loongsuite/dsh-plugin
 ```
+
+The npm package above is the upstream stable release. For DSH `0.2.0-rc.2`, install this fork
+branch:
+
+```sh
+dsh plugin --profile web add "github:sicnuyudidi/dsh-plugin#compat/dsh-0.2.0-rc.2"
+```
+
+You can also install the tgz downloaded from this fork's Release:
+
+```sh
+dsh plugin --profile web add /path/to/loongsuite-dsh-plugin-0.1.4-dsh.0.2.0.tgz
+```
+
+In DSH Desktop, select the downloaded tgz under `Settings -> Plugins`. Plugin configuration is
+profile-scoped, so install it into the profile Desktop actually uses rather than only a separate
+Web or headless profile.
 
 For local development, replace the package name with the checkout path:
 

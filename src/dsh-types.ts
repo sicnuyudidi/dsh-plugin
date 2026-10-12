@@ -14,31 +14,29 @@ export type DshContentBlock =
   | { type: 'reasoning'; text: string }
   | { type: 'image'; attachment: DshImageRef }
   | { type: 'tool-call'; id: string; name: string; arguments: string }
-  | { type: 'tool-result'; toolCallId: string; content: DshContentBlock[]; isError?: boolean }
+  | { type: 'tool-result'; toolCallId: string; content: readonly DshContentBlock[]; isError?: boolean }
+  | { type: string }
   | ({ type: string } & Record<string, unknown>)
 
 export interface DshMessage {
   id: string
-  role: 'system' | 'user' | 'assistant'
-  content: DshContentBlock[]
-  source: {
-    kind: string
-    provider?: string
-    model?: string
-    callId?: string
-    [key: string]: unknown
-  }
+  role: 'system' | 'developer' | 'user' | 'assistant' | 'tool'
+  content: readonly DshContentBlock[]
+  source:
+    | { kind: string; provider?: string; model?: string; callId?: string }
+    | ({ kind: string } & Record<string, unknown>)
 }
 
 export interface DshToolSchema {
   name: string
   description: string
-  parameters: Record<string, unknown>
+  parameters: unknown
 }
 
 export interface DshTokenUsage {
   inputTokens: number
   outputTokens: number
+  totalTokens?: number
   cacheReadTokens?: number
   cacheWriteTokens?: number
   reasoningTokens?: number
@@ -70,9 +68,9 @@ export interface DshGenerateOptions {
   provider: string
   model: string
   reasoningEffort?: string
-  messages: DshMessage[]
+  messages: readonly unknown[]
   system?: string
-  tools?: DshToolSchema[]
+  tools?: readonly DshToolSchema[]
   temperature?: number
   maxTokens?: number
   stop?: string[]
@@ -111,25 +109,41 @@ export interface DshEventDataMap {
   'step/start': { turn: number; step: number }
   'step/end': { turn: number; step: number }
   'user/message': DshMessage
+  'developer/message': { turn: number; step: number; message: DshMessage; headerSeq?: number }
+  'system/message': { turn: number; step: number; message: DshMessage }
   'assistant/chunk': { turn: number; step: number; chunk: DshStreamChunk }
-  'assistant/message': { turn: number; step: number; message: DshMessage; usage?: DshTokenUsage }
+  'assistant/message': {
+    turn: number
+    step: number
+    message: DshMessage
+    stream?: readonly unknown[]
+    usage?: DshTokenUsage
+    interrupted?: true
+  }
+  'assistant/attempt': { turn: number; step: number; stream: readonly unknown[] }
   'tool/call': { turn: number; step: number; callId: string; name: string; arguments: string }
   'tool/result': {
     turn: number
     step: number
     message: DshMessage
-    error?: { name: string; code: string }
+    error?: { name: string; code: string; reason?: string }
     meta?: unknown
   }
   'request/header': {
     header: {
       config: Record<string, unknown>
       system?: string
-      tools?: DshToolSchema[]
+      tools?: readonly DshToolSchema[]
     }
     reason: string
+    startsSeries?: true
   }
-  'request/context': { provider: string; model: string; contextWindow?: number }
+  'request/context': {
+    provider: string
+    model: string
+    contextWindow?: number
+    systemPromptUpdate?: string
+  }
 }
 
 export type KnownDshEvent = {

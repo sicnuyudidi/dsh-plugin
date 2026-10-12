@@ -57,7 +57,7 @@ export function session(id = 'session-test'): DshSession {
 export function message(
   id: string,
   role: DshMessage['role'],
-  content: DshContentBlock[],
+  content: readonly DshContentBlock[],
   source: DshMessage['source'],
 ): DshMessage {
   return { id, role, content, source }

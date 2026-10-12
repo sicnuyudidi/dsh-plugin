@@ -10,7 +10,8 @@ GenAI Trace 与 Metric，并通过标准 OTLP/HTTP Protobuf 上报到任意兼�
 LoongSuite 是基于 OpenTelemetry 的开源可观测采集体系。本仓库是它面向 DSH 的原生集成。插件**不依赖也不
 要求安装 LoongSuite Pilot**，不需要 sidecar、本地 JSONL 采集点，也不绑定任何厂商的后端。
 
-> 当前状态：稳定的 `0.1.x` 版本。可从 npm 或 DSH 插件市场安装 `@loongsuite/dsh-plugin`。
+> Fork 构建状态：`0.1.4-dsh.0.2.0`，面向 DSH `0.2.0-rc.2` 的 Session V4。
+> npm 与 DSH 插件市场中的上游 `0.1.x` 包仍面向 DSH `0.1.x`。
 
 <p align="center">
   <img src="docs/assets/langfuse-trace.png" alt="DSH 的一轮对话作为 OpenTelemetry GenAI 调用链，在自建 Langfuse 中查看" width="900">
@@ -67,13 +68,13 @@ GenAI Invocation 构建与语义属性由
 
 ## 兼容范围
 
-| 组件 | 支持范围 | 已完整验证版本 |
+| 组件 | 支持范围 | 验证基线 |
 | --- | --- | --- |
-| DeepSeek Harness | `>=0.1.0-rc.6 <0.2.0` | `0.1.0-rc.6` 的 headless 与 Web profile |
-| Node.js | `>=22.19.0` | macOS 上的 `22.19`、`24.19` 和 `25.9` |
+| DeepSeek Harness | `>=0.2.0-rc.2 <0.2.1` | `0.2.0-rc.2` 的隔离 profile、类型检查和事件映射测试 |
+| Node.js | `>=22.19.0` | Windows 上 DSH Desktop 捆绑的 Node.js 运行时 |
 
-不支持早于 `0.1.0-rc.6` 的 DSH RC 版本。每个插件版本都以 DSH 当前最新发布版为准进行验证，
-不会仅凭 bundle 能成功组合就宣称具备完整运行时兼容性。
+此 fork 分支专门适配 DSH `0.2.x`，支持 Session V4 的 `system/message`、`developer/message`、
+一等 `tool` role、权威 `totalTokens` 和工具错误 `reason`。需要 DSH `0.1.x` 时请使用上游发布版。
 
 ## 安装与使用
 
@@ -86,6 +87,21 @@ Jaeger 后端，三条命令看到第一条调用链。
 dsh plugin --profile web add @loongsuite/dsh-plugin
 dsh plugin --profile headless add @loongsuite/dsh-plugin
 ```
+
+上面的 npm 包是上游稳定版。DSH `0.2.0-rc.2` 请安装此 fork 分支：
+
+```sh
+dsh plugin --profile web add "github:sicnuyudidi/dsh-plugin#compat/dsh-0.2.0-rc.2"
+```
+
+也可以安装 Release 中下载的 tgz 包：
+
+```sh
+dsh plugin --profile web add /path/to/loongsuite-dsh-plugin-0.1.4-dsh.0.2.0.tgz
+```
+
+DSH Desktop 可在 `Settings -> Plugins` 中选择下载后的 tgz 包。插件配置按 profile 保存；请安装到
+Desktop 实际使用的 profile，而不是只安装到单独的 Web 或 headless profile。
 
 本地开发时，把包名换成本仓库的绝对路径：
 

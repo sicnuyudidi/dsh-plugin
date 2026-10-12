@@ -165,6 +165,18 @@ describe('DshTraceCoordinator', () => {
         { kind: 'coordinator', form: 'relay', senderSessionId: 'parent-1' },
       ),
     ]
+    const system = message(
+      'system-1',
+      'system',
+      [{ type: 'text', text: 'session v4 system instructions' }],
+      { kind: 'system-prompt' },
+    )
+    const developer = message(
+      'developer-1',
+      'developer',
+      [{ type: 'tool-addition', toolName: 'read_file' }],
+      { kind: 'developer' },
+    )
     const llmRequest = {
       ...llmOptions('input-boundary-session'),
       messages: [direct, ...injected, steering],
@@ -175,13 +187,25 @@ describe('DshTraceCoordinator', () => {
     for (const [index, input] of [direct, ...injected, steering].entries()) {
       coordinator.onSessionEvent(current, event('user/message', input, index + 1, started + index + 1))
     }
-    coordinator.onSessionEvent(current, event('step/start', { turn: 1, step: 1 }, 7, started + 10))
+    coordinator.onSessionEvent(current, event(
+      'system/message',
+      { turn: 1, step: 1, message: system },
+      7,
+      started + 8,
+    ))
+    coordinator.onSessionEvent(current, event(
+      'developer/message',
+      { turn: 1, step: 1, message: developer, headerSeq: 6 },
+      8,
+      started + 9,
+    ))
+    coordinator.onSessionEvent(current, event('step/start', { turn: 1, step: 1 }, 9, started + 10))
     await collect(coordinator.interceptLlm(llmRequest, successfulStream))
-    coordinator.onSessionEvent(current, event('step/end', { turn: 1, step: 1 }, 8, Date.now()))
+    coordinator.onSessionEvent(current, event('step/end', { turn: 1, step: 1 }, 10, Date.now()))
     coordinator.onSessionEvent(current, event(
       'turn/end',
       { turn: 1, reason: { kind: 'completed' } },
-      9,
+      11,
       Date.now(),
     ))
 
@@ -199,11 +223,13 @@ describe('DshTraceCoordinator', () => {
     expect(JSON.parse(String(agent.attributes[CONTENT_ATTRIBUTES.inputMessages])))
       .toEqual(directInputs)
     const llmInputs = JSON.parse(String(llm.attributes[CONTENT_ATTRIBUTES.inputMessages])) as unknown[]
-    expect(llmInputs).toHaveLength(6)
+    expect(llmInputs).toHaveLength(8)
     expect(llm.attributes[CONTENT_ATTRIBUTES.inputMessages]).toContain('injected runtime context')
     expect(llm.attributes[CONTENT_ATTRIBUTES.inputMessages]).toContain('injected skill catalog')
     expect(llm.attributes[CONTENT_ATTRIBUTES.inputMessages]).toContain('automatic goal continuation')
     expect(llm.attributes[CONTENT_ATTRIBUTES.inputMessages]).toContain('coordinator follow-up')
+    expect(llm.attributes[CONTENT_ATTRIBUTES.inputMessages]).toContain('session v4 system instructions')
+    expect(llm.attributes[CONTENT_ATTRIBUTES.inputMessages]).toContain('tool-addition')
     await pipeline.shutdown()
   })
 

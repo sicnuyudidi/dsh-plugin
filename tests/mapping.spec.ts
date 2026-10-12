@@ -109,6 +109,12 @@ describe('DSH → GenAI mapping', () => {
     expect((target.attributes as Record<string, unknown>)['gen_ai.usage.total_tokens']).toBe(16)
   })
 
+  it('preserves the authoritative DSH 0.2 total token count when provided', () => {
+    const target: Record<string, unknown> = { attributes: {} }
+    applyUsage(target, { inputTokens: 12, outputTokens: 4, totalTokens: 20 })
+    expect((target.attributes as Record<string, unknown>)['gen_ai.usage.total_tokens']).toBe(20)
+  })
+
   it('replaces oversized content with valid truncation metadata', () => {
     const serialized = serializeCaptured({ prompt: 'x'.repeat(100) }, 20)
     expect(() => JSON.parse(serialized)).not.toThrow()

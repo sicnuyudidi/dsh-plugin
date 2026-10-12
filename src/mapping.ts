@@ -84,7 +84,7 @@ export function mapContent(blocks: readonly DshContentBlock[]): MessagePart[] {
   return blocks.map(mapContentBlock)
 }
 
-/** DSH encodes tool results as user messages; GenAI represents them with role=tool. */
+/** DSH 0.1 encoded tool results as user messages; 0.2 uses a first-class tool role. */
 export function mapInputMessage(message: DshMessage): InputMessage {
   return {
     role: message.source.kind === 'tool' ? 'tool' : message.role,
@@ -178,7 +178,8 @@ export function applyUsage(
   target.attributes ??= {}
   // Already cumulative: `inputTokens` carries both cache buckets, so adding
   // them again here would double-count them.
-  target.attributes['gen_ai.usage.total_tokens'] = target.inputTokens + usage.outputTokens
+  target.attributes['gen_ai.usage.total_tokens'] = usage.totalTokens
+    ?? target.inputTokens + usage.outputTokens
   if (usage.reasoningTokens !== undefined) {
     target.attributes['gen_ai.usage.reasoning_tokens'] = usage.reasoningTokens
   }

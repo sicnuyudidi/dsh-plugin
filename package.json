@@ -1,6 +1,6 @@
 {
   "name": "@loongsuite/dsh-plugin",
-  "version": "0.1.4",
+  "version": "0.1.4-dsh.0.2.0",
   "description": "Standalone OpenTelemetry GenAI observability plugin for DeepSeek Harness",
   "type": "module",
   "main": "./dist/index.js",
@@ -26,6 +26,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "release:check": "pnpm run check && pnpm run test:coverage && pnpm run build && npm pack --dry-run",
+    "prepare": "pnpm run build",
     "prepack": "pnpm run build"
   },
   "packageManager": "pnpm@10.28.2",
@@ -37,11 +38,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/loongsuite/dsh-plugin.git"
+    "url": "git+https://github.com/sicnuyudidi/dsh-plugin.git"
   },
-  "homepage": "https://github.com/loongsuite/dsh-plugin#readme",
+  "homepage": "https://github.com/sicnuyudidi/dsh-plugin/tree/compat/dsh-0.2.0-rc.2#readme",
   "bugs": {
-    "url": "https://github.com/loongsuite/dsh-plugin/issues"
+    "url": "https://github.com/sicnuyudidi/dsh-plugin/issues"
   },
   "keywords": [
     "deepseek-harness",
@@ -61,7 +62,7 @@
     }
   },
   "dependencies": {
-    "@deepseek-ai/schemastery": "^3.18.1",
+    "@deepseek-ai/schemastery": "~3.18.4",
     "@loongsuite/otel-util-genai": "^0.1.1",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.221.0",
@@ -72,7 +73,9 @@
     "@opentelemetry/semantic-conventions": "^1.40.0"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "4.0.1",
+    "@deepseek-ai/cordis": "~4.0.4",
+    "@deepseek-ai/dsh-llm": "0.2.0-rc.2",
+    "@deepseek-ai/dsh-session": "0.2.0-rc.2",
     "@types/node": "^24.0.0",
     "@vitest/coverage-v8": "^4.1.10",
     "typescript": "^5.9.3",
