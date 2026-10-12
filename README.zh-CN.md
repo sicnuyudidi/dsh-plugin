@@ -88,17 +88,21 @@ dsh plugin --profile web add @loongsuite/dsh-plugin
 dsh plugin --profile headless add @loongsuite/dsh-plugin
 ```
 
-上面的 npm 包是上游稳定版。DSH `0.2.0-rc.2` 请安装此 fork 分支：
+上面的 npm 包是上游稳定版。DSH `0.2.0-rc.2` 推荐从此 fork 的 Release 下载 tgz 后安装：
+
+```sh
+dsh plugin --profile web add /path/to/loongsuite-dsh-plugin-0.1.4-dsh.0.2.0.tgz
+```
+
+也可以直接安装 Git 分支：
 
 ```sh
 dsh plugin --profile web add "github:sicnuyudidi/dsh-plugin#compat/dsh-0.2.0-rc.2"
 ```
 
-也可以安装 Release 中下载的 tgz 包：
-
-```sh
-dsh plugin --profile web add /path/to/loongsuite-dsh-plugin-0.1.4-dsh.0.2.0.tgz
-```
+Git 安装需要执行 `prepare` 构建。DSH `0.2.0-rc.2` 捆绑的 pnpm 11 默认会阻止 Git 依赖的
+构建脚本；首次安装会输出精确的 `allowBuilds` key。按提示把该 key 加入目标 profile 的
+`pnpm-workspace.yaml` 后重试即可。tgz 已包含 `dist`，不需要放开构建脚本，因此更适合 Desktop。
 
 DSH Desktop 可在 `Settings -> Plugins` 中选择下载后的 tgz 包。插件配置按 profile 保存；请安装到
 Desktop 实际使用的 profile，而不是只安装到单独的 Web 或 headless profile。

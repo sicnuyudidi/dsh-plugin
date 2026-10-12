@@ -94,18 +94,23 @@ dsh plugin --profile web add @loongsuite/dsh-plugin
 dsh plugin --profile headless add @loongsuite/dsh-plugin
 ```
 
-The npm package above is the upstream stable release. For DSH `0.2.0-rc.2`, install this fork
-branch:
+The npm package above is the upstream stable release. For DSH `0.2.0-rc.2`, download the tgz from
+this fork's Release and install it:
+
+```sh
+dsh plugin --profile web add /path/to/loongsuite-dsh-plugin-0.1.4-dsh.0.2.0.tgz
+```
+
+You can also install the Git branch directly:
 
 ```sh
 dsh plugin --profile web add "github:sicnuyudidi/dsh-plugin#compat/dsh-0.2.0-rc.2"
 ```
 
-You can also install the tgz downloaded from this fork's Release:
-
-```sh
-dsh plugin --profile web add /path/to/loongsuite-dsh-plugin-0.1.4-dsh.0.2.0.tgz
-```
+Git installation runs the package's `prepare` build. pnpm 11 bundled with DSH `0.2.0-rc.2`
+blocks Git dependency build scripts by default; the first attempt prints the exact `allowBuilds`
+key to add to the target profile's `pnpm-workspace.yaml` before retrying. The tgz already contains
+`dist` and does not need build-script approval, so it is the recommended Desktop installation.
 
 In DSH Desktop, select the downloaded tgz under `Settings -> Plugins`. Plugin configuration is
 profile-scoped, so install it into the profile Desktop actually uses rather than only a separate
